@@ -1,18 +1,16 @@
 {
   "scripts": {
-    "build:icons": "cd icons && ./create_icon.sh",
-    "build": "npm run build:icons && webpack",
-    "pack": "zip -r extension.zip . -x 'node_modules/*'"
+    "pack": "node -e \"const m=require('./manifest.json'); require('child_process').execSync('zip -r ' + m.name + '-v' + m.version + '.zip manifest.json background.js content-script.js popup.js popup.html popup.css icons/*.png scrapers/')\""
   },
   "dependencies": {
     "canvas": "^3.1.0",
     "sharp": "^0.33.5"
   },
-  "name": "deepsave",
-  "description": "一个用于导出 DeepSeek 聊天记录的 Chrome 扩展。",
-  "version": "1.0.0",
+  "name": "DeepSave",
+  "description": "一个用于导出 DeepSeek 和 ChatGPT 对话记录的浏览器扩展。",
+  "version": "1.0.1",
   "main": "background.js",
   "keywords": [],
-  "author": "",
+  "author": "maoking",
   "license": "ISC"
 }

@@ -1,1 +1,4 @@
 chat-export-*.json
+node_modules/
+extension.zip
+.DS_Store
