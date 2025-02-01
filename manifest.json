@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "DeepSave",
-  "version": "1.0",
+  "version": "1.0.1",
   "description": "一个用于导出 DeepSeek 和 ChatGPT 对话记录的浏览器扩展。支持 Markdown 和 JSON 格式导出，可以保存完整的对话历史，包括深度思考内容。",
   "icons": {
     "16": "icons/icon16.png",
