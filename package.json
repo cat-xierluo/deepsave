@@ -1,5 +1,7 @@
 {
   "scripts": {
+    "icons": "cd icons && ./create_icon.sh",
+    "icons:clean": "cd icons && ./create_icon.sh --clean",
     "pack": "node -e \"const m=require('./manifest.json'); require('child_process').execSync('zip -r ' + m.name + '-v' + m.version + '.zip manifest.json background.js content-script.js popup.js popup.html popup.css icons/*.png scrapers/')\""
   },
   "dependencies": {
