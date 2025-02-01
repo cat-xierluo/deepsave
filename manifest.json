@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Chat Exporter",
+  "name": "DeepSave",
   "version": "1.0",
-  "description": "导出聊天记录为Markdown或JSON格式",
+  "description": "一个用于导出 DeepSeek 和 ChatGPT 对话记录的浏览器扩展。支持 Markdown 和 JSON 格式导出，可以保存完整的对话历史，包括深度思考内容。",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
@@ -11,12 +11,17 @@
   "content_scripts": [
     {
       "matches": [
-        "https://chat.deepseek.com/*",
-        "http://chat.deepseek.com/*",
-        "https://chat.openai.com/*",
-        "https://chatgpt.com/*"
+        "*://chat.deepseek.com/*",
+        "*://chat.openai.com/*",
+        "*://chatgpt.com/*"
       ],
-      "js": ["content-script.js"]
+      "js": [
+        "scrapers/base-scraper.js",
+        "scrapers/chatgpt-scraper.js",
+        "scrapers/deepseek-scraper.js",
+        "content-script.js"
+      ],
+      "run_at": "document_idle"
     }
   ],
   "permissions": [
@@ -24,10 +29,9 @@
     "scripting"
   ],
   "host_permissions": [
-    "https://chat.deepseek.com/*",
-    "http://chat.deepseek.com/*",
-    "https://chat.openai.com/*",
-    "https://chatgpt.com/*"
+    "*://chat.deepseek.com/*",
+    "*://chat.openai.com/*",
+    "*://chatgpt.com/*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -40,13 +44,22 @@
       "128": "icons/icon128.png"
     }
   },
-  "web_accessible_resources": [{
-    "resources": ["icons/*"],
-    "matches": [
-      "https://chat.deepseek.com/*",
-      "http://chat.deepseek.com/*",
-      "https://chat.openai.com/*",
-      "https://chatgpt.com/*"
-    ]
-  }]
-} 
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "icons/*"
+      ],
+      "matches": [
+        "https://chat.deepseek.com/*",
+        "http://chat.deepseek.com/*",
+        "https://chat.openai.com/*",
+        "https://chatgpt.com/*"
+      ]
+    }
+  ],
+  "author": "maoking",
+  "homepage_url": "https://github.com/maoking/deepsave"
+}

@@ -1,6 +1,18 @@
 {
   "scripts": {
-    "build": "node generate-icons.js && npm run pack",
+    "build:icons": "cd icons && ./create_icon.sh",
+    "build": "npm run build:icons && webpack",
     "pack": "zip -r extension.zip . -x 'node_modules/*'"
-  }
-} 
+  },
+  "dependencies": {
+    "canvas": "^3.1.0",
+    "sharp": "^0.33.5"
+  },
+  "name": "deepsave",
+  "description": "一个用于导出 DeepSeek 聊天记录的 Chrome 扩展。",
+  "version": "1.0.0",
+  "main": "background.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

@@ -24,11 +24,24 @@ async function ensureContentScriptInjected(tabId) {
     }
     
     log('content script未正确初始化，尝试重新注入');
-    await chrome.scripting.executeScript({
-      target: { tabId },
-      files: ['content-script.js']
-    });
-    log('content script注入成功');
+    
+    // 按顺序注入所有必要的脚本
+    const scripts = [
+      'scrapers/base-scraper.js',
+      'scrapers/chatgpt-scraper.js',
+      'scrapers/deepseek-scraper.js',
+      'content-script.js'
+    ];
+
+    for (const script of scripts) {
+      log(`注入脚本: ${script}`);
+      await chrome.scripting.executeScript({
+        target: { tabId },
+        files: [script]
+      });
+    }
+
+    log('所有脚本注入成功');
     return true;
   } catch (err) {
     error('content script操作失败', err);
@@ -90,6 +103,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       sendResponse(status);
     });
     return true;
+  }
+
+  if (request.action === 'exportComplete') {
+    log('导出完成', request.result);
+    // 可以在这里处理导出完成后的操作
+    return false;
   }
   
   if (request.action === 'getConversations' || request.action === 'export') {

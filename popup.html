@@ -84,10 +84,6 @@
       display: none;
     }
   </style>
-  <script>
-    // 立即输出到控制台，不依赖任何函数
-    console.log('===== Popup HTML 开始加载 =====');
-  </script>
 </head>
 <body>
   <div id="content">
@@ -95,25 +91,7 @@
   </div>
   <div id="loading">加载中...</div>
   <div id="debug"></div>
-  <script>
-    console.log('===== 开始设置调试系统 =====');
-    
-    // 全局调试函数
-    window.debugLog = [];
-    window.addDebug = function(msg) {
-      console.log('===== Debug:', msg, '=====');
-      const debugDiv = document.getElementById('debug');
-      window.debugLog.push(msg);
-      if (debugDiv) {
-        debugDiv.textContent = window.debugLog.join('\n');
-        debugDiv.scrollTop = debugDiv.scrollHeight;
-      }
-    };
-
-    // 立即测试调试系统
-    window.addDebug('调试系统已初始化');
-    console.log('===== 调试系统设置完成 =====');
-  </script>
+  <script src="debug.js"></script>
   <script src="popup.js"></script>
 </body>
 </html> 

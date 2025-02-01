@@ -55,30 +55,6 @@ deepsave/
    - 检查页面是否完全展开
    - 确认分页是否完全处理
 
-## 贡献指南
-1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 提交 Pull Request
-
-## 版本历史
-- v1.0.0 (2024-03)
-  - 初始版本发布
-  - 支持基本导出功能
-  - 实现代码块格式保留
 
 ## 许可证
 MIT License - 详见 [LICENSE](LICENSE) 文件
-
-## 作者
-- 项目维护者 - [Your Name]
-- 贡献者列表 - [Contributors](https://github.com/yourusername/deepseek-exporter/contributors)
-
-## 致谢
-- DeepSeek团队提供的优秀对话平台
-- 所有为本项目提供反馈和建议的用户
-
-## 联系方式
-- 项目Issues: [GitHub Issues](https://github.com/yourusername/deepseek-exporter/issues)
-- 邮箱: your.email@example.com

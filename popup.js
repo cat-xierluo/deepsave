@@ -43,30 +43,33 @@ async function waitForExtension(tabId) {
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
       reject(new Error('等待扩展超时'));
-    }, 5000);
+    }, 10000);
 
     function checkStatus() {
       log('检查扩展状态...');
-      chrome.runtime.sendMessage({ 
-        action: 'checkStatus',
-        tabId: tabId
-      }, response => {
-        const err = chrome.runtime.lastError;
-        if (err) {
-          log('检查状态出错:', err.message);
-          clearTimeout(timeout);
-          reject(err);
-          return;
-        }
-        
-        log('收到状态响应:', response);
-        if (response && response.ready) {
-          clearTimeout(timeout);
-          resolve(true);
-        } else {
-          setTimeout(checkStatus, 100);
-        }
-      });
+      try {
+        chrome.runtime.sendMessage({ 
+          action: 'checkStatus',
+          tabId: tabId
+        }, response => {
+          if (chrome.runtime.lastError) {
+            log('检查状态出错:', chrome.runtime.lastError.message);
+            setTimeout(checkStatus, 500);
+            return;
+          }
+          
+          log('收到状态响应:', response);
+          if (response && response.ready) {
+            clearTimeout(timeout);
+            resolve(true);
+          } else {
+            setTimeout(checkStatus, 500);
+          }
+        });
+      } catch (err) {
+        log('发送消息出错:', err);
+        setTimeout(checkStatus, 500);
+      }
     }
 
     checkStatus();
@@ -119,18 +122,35 @@ async function checkAndLoadConversation() {
   try {
     // 获取当前标签页
     log('开始获取当前标签页');
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
     
-    if (!tab) {
+    if (!tabs || tabs.length === 0) {
       error('无法获取当前标签页');
+      contentDiv.innerHTML = `
+        <div class="status-message">
+          无法获取当前标签页信息
+        </div>`;
+      loadingDiv.style.display = 'none';
       return;
     }
 
-    log('当前标签页URL:', tab.url);
+    const tab = tabs[0];
+    const url = tab.url || '';
+    log('当前标签页URL:', url);
     
     // 检查是否在正确的页面
+    if (!url) {
+      log('URL为空');
+      contentDiv.innerHTML = `
+        <div class="status-message">
+          无法获取页面URL
+        </div>`;
+      loadingDiv.style.display = 'none';
+      return;
+    }
+
     const urlPattern = /^https?:\/\/(chat\.openai\.com|chatgpt\.com|chat\.deepseek\.com)/;
-    const urlMatch = tab.url.match(urlPattern);
+    const urlMatch = url.match(urlPattern);
     log('URL匹配结果:', urlMatch ? '成功' : '失败');
     
     if (!urlMatch) {
@@ -138,7 +158,7 @@ async function checkAndLoadConversation() {
       contentDiv.innerHTML = `
         <div class="status-message">
           请在 ChatGPT 或 DeepSeek 聊天页面使用此扩展<br>
-          当前URL: ${tab.url}
+          当前URL: ${url}
         </div>`;
       loadingDiv.style.display = 'none';
       return;
@@ -327,78 +347,4 @@ async function main() {
 log('准备执行主函数');
 main().catch(err => {
   error('执行出错:', err.message);
-});
-
-document.addEventListener('DOMContentLoaded', async () => {
-    const exportMarkdownBtn = document.getElementById('exportMarkdown');
-    const exportJSONBtn = document.getElementById('exportJSON');
-    const messageCountSpan = document.getElementById('messageCount');
-
-    // 获取当前标签页
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    
-    // 获取对话信息
-    try {
-        const response = await chrome.tabs.sendMessage(tab.id, {
-            action: 'getConversations',
-            tabId: tab.id
-        });
-        
-        if (response && response[0]) {
-            const conversation = response[0];
-            messageCountSpan.textContent = conversation.messageCount || 0;
-            
-            if (conversation.title) {
-                document.querySelector('.title').textContent = conversation.title;
-            }
-        }
-    } catch (error) {
-        console.error('获取对话信息失败:', error);
-    }
-
-    // 导出Markdown按钮点击事件
-    exportMarkdownBtn.addEventListener('click', async () => {
-        try {
-            exportMarkdownBtn.classList.add('loading');
-            const response = await chrome.tabs.sendMessage(tab.id, {
-                action: 'export',
-                format: 'markdown',
-                tabId: tab.id
-            });
-            
-            if (response && response.success) {
-                window.close();
-            } else {
-                alert('导出失败: ' + (response?.error || '未知错误'));
-            }
-        } catch (error) {
-            console.error('导出Markdown失败:', error);
-            alert('导出失败: ' + error.message);
-        } finally {
-            exportMarkdownBtn.classList.remove('loading');
-        }
-    });
-
-    // 导出JSON按钮点击事件
-    exportJSONBtn.addEventListener('click', async () => {
-        try {
-            exportJSONBtn.classList.add('loading');
-            const response = await chrome.tabs.sendMessage(tab.id, {
-                action: 'export',
-                format: 'json',
-                tabId: tab.id
-            });
-            
-            if (response && response.success) {
-                window.close();
-            } else {
-                alert('导出失败: ' + (response?.error || '未知错误'));
-            }
-        } catch (error) {
-            console.error('导出JSON失败:', error);
-            alert('导出失败: ' + error.message);
-        } finally {
-            exportJSONBtn.classList.remove('loading');
-        }
-    });
 }); 
