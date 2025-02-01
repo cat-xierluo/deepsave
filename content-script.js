@@ -112,97 +112,169 @@ class ChatExporter {
     throw new Error(`找不到匹配的${selectorType}元素`);
   }
 
-  // 解析单个消息
-  parseMessage(messageBlock) {
-    try {
-      console.log('开始解析消息块...');
-      
-      // 获取角色信息
-      let role = null;
-      try {
-        // 检查是否包含特定的用户/AI标识类
-        if (messageBlock.querySelector('div[class*="f72b0bab"]')) {
-          role = 'user';
-        } else if (messageBlock.querySelector('div[class*="edb250b1"]')) {
-          role = 'assistant';
-        }
-        console.log('解析到角色:', role);
-      } catch (error) {
-        console.warn('解析角色失败:', error);
-      }
-
-      // 获取消息内容
-      let content = '';
-      try {
-        // 首先尝试获取markdown内容
-        const markdownContent = messageBlock.querySelector('div[class*="ds-markdown"]');
-        if (markdownContent) {
-          content = markdownContent.innerText;
-        } else {
-          // 尝试获取普通文本内容
-          const textContent = messageBlock.querySelector('div[class*="d8ed659a"]');
-          if (textContent) {
-            content = textContent.innerText;
-          }
-        }
-        
-        // 如果上述都失败，尝试其他选择器
-        if (!content) {
-          const contentElement = this.smartQuery('content', messageBlock)[0];
-          if (contentElement) {
-            content = contentElement.innerText;
-          }
-        }
-        
-        console.log('解析到内容长度:', content.length);
-      } catch (error) {
-        console.warn('解析内容失败:', error);
-      }
-
-      // 获取时间戳
-      const timestamp = Date.now();
-
-      if (!content) {
-        console.warn('未能解析到消息内容');
-        return null;
-      }
-
-      const message = {
-        role,
-        content,
-        timestamp,
-        contentPreview: content.substring(0, 50) + (content.length > 50 ? '...' : ''),
-        contentLength: content.length
-      };
-
-      console.log('成功解析消息:', message);
-      return message;
-    } catch (error) {
-      console.error('解析消息失败:', error);
-      return null;
-    }
-  }
-
   // 收集所有消息
   collectMessages() {
     try {
       console.log('开始收集消息...');
       const messages = [];
-      const messageBlocks = this.smartQuery('messageBlock');
-      console.log(`找到 ${messageBlocks.length} 个消息块`);
-
-      for (const block of messageBlocks) {
-        const message = this.parseMessage(block);
-        if (message && message.content && message.content.trim()) {
-          messages.push(message);
-        }
+      
+      // 查找消息组容器
+      const messageGroup = document.querySelector('div[class*="dad65929"]');
+      if (!messageGroup) {
+        console.warn('未找到消息组容器');
+        return messages;
       }
+      
+      // 获取所有直接子元素（用户消息和AI回复交替出现）
+      const messageElements = messageGroup.children;
+      console.log(`找到 ${messageElements.length} 个消息元素`);
+      
+      Array.from(messageElements).forEach((element, index) => {
+        console.log(`处理第 ${index + 1} 个消息元素`);
+        
+        // 检查是否是用户消息
+        if (element.classList.contains('fa81')) {
+          const content = element.innerText.trim();
+          if (content) {
+            messages.push({
+              role: 'user',
+              content: content,
+              timestamp: Date.now(),
+              contentPreview: content.substring(0, 50) + (content.length > 50 ? '...' : ''),
+              contentLength: content.length
+            });
+            console.log('添加用户消息，预览:', content.substring(0, 50));
+          }
+        }
+        // 检查是否是AI回复
+        else if (element.classList.contains('f9bf7997')) {
+          let aiContent = '';
+          
+          // 1. 查找深度思考部分
+          const deepThinkingContainer = element.querySelector('div[class*="edb250b1"]');
+          if (deepThinkingContainer) {
+            const deepThinkingText = deepThinkingContainer.innerText.trim();
+            if (deepThinkingText) {
+              aiContent += "【深度思考】\n" + deepThinkingText + "\n\n";
+              console.log('找到深度思考内容');
+            }
+          }
+          
+          // 2. 查找常规回复部分
+          const regularResponse = element.querySelector('div[class="ds-markdown ds-markdown--block"]');
+          if (regularResponse) {
+            const regularText = regularResponse.innerText.trim();
+            if (regularText) {
+              aiContent += "【回复】\n" + regularText;
+              console.log('找到常规回复内容');
+            }
+          }
+          
+          if (aiContent) {
+            messages.push({
+              role: 'assistant',
+              content: aiContent,
+              timestamp: Date.now(),
+              contentPreview: aiContent.substring(0, 50) + (aiContent.length > 50 ? '...' : ''),
+              contentLength: aiContent.length
+            });
+            console.log('添加AI消息，包含深度思考和/或常规回复');
+          }
+        }
+      });
 
       console.log(`成功收集 ${messages.length} 条消息`);
       return messages;
     } catch (error) {
       console.error('收集消息失败:', error);
       return [];
+    }
+  }
+
+  // 解析单个消息
+  parseMessage(messageBlock) {
+    try {
+      console.log('开始解析消息块...');
+      
+      // 检查是否是用户消息
+      if (messageBlock.classList.contains('fa81')) {
+        const content = messageBlock.innerText.trim();
+        if (content) {
+          const message = {
+            role: 'user',
+            content: content,
+            timestamp: Date.now(),
+            contentPreview: content.substring(0, 50) + (content.length > 50 ? '...' : ''),
+            contentLength: content.length
+          };
+          console.log('成功解析用户消息:', message);
+          return message;
+        }
+      }
+      
+      // 检查是否是AI回复
+      if (messageBlock.classList.contains('f9bf7997')) {
+        let aiContent = '';
+        
+        // 1. 查找深度思考部分
+        const deepThinkingContainer = messageBlock.querySelector('div[class*="edb250b1"]');
+        if (deepThinkingContainer) {
+          const deepThinkingText = deepThinkingContainer.innerText.trim();
+          if (deepThinkingText) {
+            aiContent += "【深度思考】\n" + deepThinkingText + "\n\n";
+            console.log('找到深度思考内容');
+          }
+        }
+        
+        // 2. 查找常规回复部分
+        const regularResponse = messageBlock.querySelector('div[class="ds-markdown ds-markdown--block"]');
+        if (regularResponse) {
+          const regularText = regularResponse.innerText.trim();
+          if (regularText) {
+            aiContent += "【回复】\n" + regularText;
+            console.log('找到常规回复内容');
+          }
+        }
+        
+        if (aiContent) {
+          const message = {
+            role: 'assistant',
+            content: aiContent,
+            timestamp: Date.now(),
+            contentPreview: aiContent.substring(0, 50) + (aiContent.length > 50 ? '...' : ''),
+            contentLength: aiContent.length
+          };
+          console.log('成功解析AI消息:', message);
+          return message;
+        }
+      }
+
+      console.warn('未能解析到消息内容');
+      return null;
+    } catch (error) {
+      console.error('解析消息失败:', error);
+      return null;
+    }
+  }
+
+  // 获取当前对话标题
+  getCurrentConversationTitle() {
+    try {
+      console.log('开始获取对话标题...');
+      
+      // 查找标题容器
+      const titleContainer = document.querySelector('div[class*="be88ba8a"]');
+      if (titleContainer) {
+        const title = titleContainer.innerText.trim();
+        console.log('找到对话标题:', title);
+        return title || '未命名对话';
+      }
+      
+      console.warn('未找到标题容器');
+      return '未命名对话';
+    } catch (error) {
+      console.error('获取标题失败:', error);
+      return '未命名对话';
     }
   }
 
@@ -291,57 +363,6 @@ class ChatExporter {
     alert('导出失败，请刷新页面后重试');
     btns.forEach(btn => btn.classList.remove('loading'));
     return false;
-  }
-
-  // 获取当前对话标题
-  getCurrentConversationTitle() {
-    try {
-      console.log('尝试获取对话标题...');
-      
-      // 针对DeepSeek的特定查找逻辑
-      const deepseekRoot = document.querySelector('div[class*="f8d1e4c0"]');
-      if (deepseekRoot) {
-        console.log('找到DeepSeek根元素');
-        // 查找第一个flex布局的直接子元素
-        const flexChild = deepseekRoot.querySelector('div[style*="flex"]');
-        if (flexChild) {
-          const text = flexChild.innerText.trim();
-          if (text && text.length > 0) {
-            console.log('从DeepSeek特定元素获取到标题:', text);
-            return text.substring(0, 100);
-          }
-        }
-      }
-      
-      // 如果DeepSeek特定查找失败，使用原有的查找逻辑
-      for (const selector of EXPORT_CONFIG.selectors.conversationTitle) {
-        console.log('尝试选择器:', selector);
-        const titleElement = document.querySelector(selector);
-        if (titleElement) {
-          console.log('找到标题元素:', titleElement);
-          const title = titleElement.innerText.trim();
-          if (title && !title.includes('DeepSeek') && title !== '当前对话') {
-            console.log('获取到标题:', title);
-            return title;
-          }
-        }
-      }
-      
-      // 如果没有找到合适的标题，使用时间戳
-      const timestamp = new Date().toLocaleString('zh-CN', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-      console.log('使用时间戳作为标题');
-      return `对话记录 ${timestamp}`;
-      
-    } catch (error) {
-      console.warn('获取对话标题失败:', error);
-      return '未命名对话';
-    }
   }
 
   // 文件下载
