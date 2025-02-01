@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "build": "node generate-icons.js && npm run pack",
+    "pack": "zip -r extension.zip . -x 'node_modules/*'"
+  }
+} 

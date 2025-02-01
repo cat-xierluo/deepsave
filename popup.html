@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      width: 300px;
+      padding: 10px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    
+    #content {
+      margin-bottom: 10px;
+    }
+    
+    .conversation-item {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+    
+    .conv-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .conv-info {
+      color: #666;
+      font-size: 0.9em;
+    }
+    
+    .status-message {
+      color: #666;
+      text-align: center;
+      padding: 20px;
+    }
+    
+    #loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .export-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .export-btn {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 4px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.2s;
+    }
+    
+    .export-btn:hover {
+      background-color: #0056b3;
+    }
+    
+    #debug {
+      margin-top: 10px;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      display: none;
+    }
+  </style>
+  <script>
+    // 立即输出到控制台，不依赖任何函数
+    console.log('===== Popup HTML 开始加载 =====');
+  </script>
+</head>
+<body>
+  <div id="content">
+    <div id="conversationList"></div>
+  </div>
+  <div id="loading">加载中...</div>
+  <div id="debug"></div>
+  <script>
+    console.log('===== 开始设置调试系统 =====');
+    
+    // 全局调试函数
+    window.debugLog = [];
+    window.addDebug = function(msg) {
+      console.log('===== Debug:', msg, '=====');
+      const debugDiv = document.getElementById('debug');
+      window.debugLog.push(msg);
+      if (debugDiv) {
+        debugDiv.textContent = window.debugLog.join('\n');
+        debugDiv.scrollTop = debugDiv.scrollHeight;
+      }
+    };
+
+    // 立即测试调试系统
+    window.addDebug('调试系统已初始化');
+    console.log('===== 调试系统设置完成 =====');
+  </script>
+  <script src="popup.js"></script>
+</body>
+</html> 

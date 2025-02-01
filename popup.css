@@ -1,0 +1,11 @@
+/* 添加移动端适配 */
+@media (max-width: 768px) {
+  .conversation-item {
+    padding: 12px;
+    font-size: 14px;
+  }
+  
+  .list-container {
+    max-height: 50vh;
+  }
+} 
