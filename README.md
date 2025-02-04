@@ -7,11 +7,12 @@
 - 区分深度思考内容和常规回复
 - 支持 Markdown 和 JSON 格式导出
 - 支持 DeepSeek 和 ChatGPT 平台
-![ChatGPT Logo](pics/openai.png) ChatGPT
-![DeepSeek Logo](pics/deepseek.png) DeepSeek
+
+![ChatGPT Logo](pics/openai.png) 
+![DeepSeek Logo](pics/deepseek.png) 
 
 ## 安装方法
-1. 下载本项目的代码（可以下载 zip 压缩包）解压
+1. 下载本项目的代码![release](https://github.com/cat-xierluo/deepsave/releases) （可以下载 zip 压缩包）解压
 2. 打开 Chrome 浏览器，访问 `chrome://extensions/`
 3. 开启右上角的"开发者模式"
 4. 点击"加载已解压的扩展程序"
