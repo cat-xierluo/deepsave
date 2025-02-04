@@ -22,6 +22,20 @@ function error(...args) {
   }
 }
 
+// 设置网站logo
+function setSiteLogo(url) {
+  const logoImg = document.getElementById('site-logo');
+  if (!logoImg) return;
+
+  if (url.includes('chat.openai.com') || url.includes('chatgpt.com')) {
+    logoImg.src = 'pics/openai.png';
+    logoImg.alt = 'ChatGPT Logo';
+  } else if (url.includes('chat.deepseek.com')) {
+    logoImg.src = 'pics/deepseek.png';
+    logoImg.alt = 'DeepSeek Logo';
+  }
+}
+
 // 等待DOM加载
 function waitForDOM() {
   return new Promise((resolve) => {
@@ -137,6 +151,9 @@ async function checkAndLoadConversation() {
     const tab = tabs[0];
     const url = tab.url || '';
     log('当前标签页URL:', url);
+    
+    // 设置网站logo
+    setSiteLogo(url);
     
     // 检查是否在正确的页面
     if (!url) {

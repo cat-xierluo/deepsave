@@ -7,6 +7,8 @@
 - 区分深度思考内容和常规回复
 - 支持 Markdown 和 JSON 格式导出
 - 支持 DeepSeek 和 ChatGPT 平台
+![ChatGPT Logo](pics/openai.png) ChatGPT
+![DeepSeek Logo](pics/deepseek.png) DeepSeek
 
 ## 安装方法
 1. 下载本项目的代码（可以下载 zip 压缩包）解压
