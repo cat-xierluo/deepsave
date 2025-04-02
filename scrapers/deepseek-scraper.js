@@ -111,24 +111,66 @@ class DeepSeekScraper extends window.BaseScraper {
             }
           }
           // AI 回复（同时检查新旧类名）
-          else if (block.classList.contains('_4f9bf79') || block.classList.contains('f9bf7997')) {
+          else if (block.classList.contains('_4f9bf79')) {
             let aiContent = '';
             
-            // 深度思考部分（同时检查新旧选择器）
-            const deepThinkingContainer = block.querySelector('div[class*="_48edb25"], div[class*="edb250b1"]');
+            // 深度思考部分
+            const deepThinkingContainer = block.querySelector('div[class*="_48edb25"]');
             if (deepThinkingContainer) {
-              const deepThinkingText = deepThinkingContainer.innerText.trim();
+              const deepThinkingText = deepThinkingContainer.innerText.trim()
+                // 移除"已深度思考（用时 xx 秒）"这样的文本
+                .replace(/^已深度思考（用时\s*\d+\s*秒）\s*/, '')
+                .trim();
+              
               if (deepThinkingText) {
-                aiContent += deepThinkingText + '\n\n';
+                // 用 <think> 标签包裹深度思考内容
+                aiContent += `<think>${deepThinkingText}</think>\n\n`;
               }
             }
             
-            // 常规回复部分（同时检查新旧选择器）
-            const regularResponse = block.querySelector('.ds-markdown.ds-markdown--block, .ds-markdown--block');
+            // 常规回复部分 - 获取原始内容并转换为 Markdown
+            const regularResponse = block.querySelector('.ds-markdown.ds-markdown--block');
             if (regularResponse) {
-              const regularText = regularResponse.innerText.trim();
-              if (regularText) {
-                aiContent += regularText;
+              const htmlContent = regularResponse.innerHTML;
+              
+              if (htmlContent) {
+                // HTML 转 Markdown 的转换函数
+                const convertToMarkdown = (html) => {
+                  return html
+                    // 清理 HTML 属性和多余空格
+                    .replace(/\s*style="[^"]*"/g, '')
+                    .replace(/\s*class="[^"]*"/g, '')
+                    // 移除引用编号
+                    .replace(/<span>\d+<\/span>/g, '')
+                    // 转换标题
+                    .replace(/<h3>(.*?)<\/h3>/g, '### $1\n')
+                    // 转换加粗
+                    .replace(/<strong>(.*?)<\/strong>/g, '**$1**')
+                    // 转换段落
+                    .replace(/<p>(.*?)<\/p>/g, '$1\n\n')
+                    // 转换列表
+                    .replace(/<ul>/g, '')
+                    .replace(/<\/ul>/g, '')
+                    .replace(/<li>/g, '- ')
+                    .replace(/<\/li>/g, '\n')
+                    // 转换分隔线
+                    .replace(/<hr>/g, '---\n')
+                    // 转换换行
+                    .replace(/<br\s*\/?>/gi, '\n')
+                    // 清理其他 HTML 标签
+                    .replace(/<[^>]*>/g, '')
+                    // 转换 HTML 实体
+                    .replace(/&lt;/g, '<')
+                    .replace(/&gt;/g, '>')
+                    .replace(/&amp;/g, '&')
+                    .replace(/&quot;/g, '"')
+                    .replace(/&#39;/g, "'")
+                    // 清理多余空行
+                    .replace(/\n\s*\n\s*\n/g, '\n\n')
+                    .trim();
+                };
+                
+                aiContent += convertToMarkdown(htmlContent);
               }
             }
 

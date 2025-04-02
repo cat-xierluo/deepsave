@@ -90,12 +90,12 @@ function generateMarkdown(title, messages, isDeepSeek = true) {
   
   messages.forEach((msg) => {
     if (msg.role === 'user') {
-      markdown += `### User\n\n${msg.content}\n\n---\n\n`;
+      markdown += `## User\n\n${msg.content}\n\n---\n\n`;
       lastRole = 'user';
     } else if (msg.role === 'assistant') {
       const assistantName = isDeepSeek ? 'DeepSeek' : 'ChatGPT';
       if (lastRole !== 'assistant') {
-        markdown += `### ${assistantName}\n\n`;
+        markdown += `## ${assistantName}\n\n`;
       }
       markdown += `${msg.content}\n\n---\n\n`;
       lastRole = 'assistant';
