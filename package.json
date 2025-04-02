@@ -2,17 +2,10 @@
   "scripts": {
     "icons": "cd icons && ./create_icon.sh",
     "icons:clean": "cd icons && ./create_icon.sh --clean",
-    "pack": "node -e \"const m=require('./manifest.json'); require('child_process').execSync('zip -r ' + m.name + '-v' + m.version + '.zip manifest.json background.js content-script.js popup.js popup.html popup.css icons/*.png scrapers/')\""
+    "pack": "node -e \"const m=require('./manifest.json'); require('child_process').execSync('zip -r ' + m.name + '-v' + m.version + '.zip manifest.json background.js content-script.js popup.js popup.html popup.css debug.js icons/*.png pics/* scrapers/')\""
   },
   "dependencies": {
     "canvas": "^3.1.0",
     "sharp": "^0.33.5"
-  },
-  "name": "DeepSave",
-  "description": "一个用于导出 DeepSeek 和 ChatGPT 对话记录的浏览器扩展。",
-  "version": "1.0.1",
-  "main": "background.js",
-  "keywords": [],
-  "author": "maoking",
-  "license": "ISC"
+  }
 }

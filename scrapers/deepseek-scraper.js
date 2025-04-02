@@ -14,20 +14,25 @@ class DeepSeekScraper extends window.BaseScraper {
         'div[class*="f8d1e4c0"]',
         'div[class*="dad65929"]',
         'div.fa81',
-        'div.f9bf7997'
+        'div.f9bf7997',
+        'div[class*="_4f9bf79"]',
+        'div[class*="_9663006"]',
+        'div[class*="d7dc56a8"]'
       ],
       roleIndicator: [
-        'div[class*="eb23581b"]', // AI图标容器
-        'div[class*="edb250b1"]', // AI角色信息
-        'div[class*="f72b0bab"]', // 用户消息标识
-        '.message-role'
+        'div[class*="eb23581b"]',
+        'div[class*="edb250b1"]',
+        'div[class*="f72b0bab"]',
+        '.message-role',
+        'div[class*="_48edb25"]'
       ],
       content: [
-        'div[class*="d8ed659a"]', // 文本内容
-        'div[class*="ds-markdown"]', // markdown内容
-        'div[class*="f6004764"]', // 消息内容容器
+        'div[class*="d8ed659a"]',
+        'div[class*="ds-markdown"]',
+        'div[class*="f6004764"]',
         '.message-content',
-        '.ds-markdown--block'
+        '.ds-markdown--block',
+        'div.ds-markdown.ds-markdown--block'
       ],
       conversationTitle: [
         'div[class*="be88ba8a"]',
@@ -76,21 +81,25 @@ class DeepSeekScraper extends window.BaseScraper {
       console.log('开始收集 DeepSeek 消息...');
       const messages = [];
 
-      // 查找所有消息块
-      const messageContainer = document.querySelector('div[class*="dad65929"]');
-      if (!messageContainer) {
-        console.warn('未找到 DeepSeek 消息容器');
+      // 查找所有消息块（同时使用新旧选择器）
+      const messageBlocks = document.querySelectorAll([
+        'div[class*="_4f9bf79"]',
+        'div[class*="_9663006"]',
+        'div.fa81',
+        'div.f9bf7997'
+      ].join(', '));
+
+      if (!messageBlocks || messageBlocks.length === 0) {
+        console.warn('未找到 DeepSeek 消息块');
         return messages;
       }
 
-      // 查找所有用户消息和AI回复
-      const allMessages = messageContainer.children;
-      console.log(`找到 ${allMessages.length} 个消息块`);
+      console.log(`找到 ${messageBlocks.length} 个消息块`);
 
-      Array.from(allMessages).forEach((block, index) => {
+      messageBlocks.forEach((block, index) => {
         try {
-          // 用户消息
-          if (block.classList.contains('fa81')) {
+          // 用户消息（同时检查新旧类名）
+          if (block.classList.contains('_9663006') || block.classList.contains('fa81')) {
             const content = block.innerText.trim();
             if (content) {
               messages.push({
@@ -101,12 +110,12 @@ class DeepSeekScraper extends window.BaseScraper {
               console.log('添加用户消息');
             }
           }
-          // AI 回复
-          else if (block.classList.contains('f9bf7997')) {
+          // AI 回复（同时检查新旧类名）
+          else if (block.classList.contains('_4f9bf79') || block.classList.contains('f9bf7997')) {
             let aiContent = '';
             
-            // 深度思考部分
-            const deepThinkingContainer = block.querySelector('div[class*="edb250b1"]');
+            // 深度思考部分（同时检查新旧选择器）
+            const deepThinkingContainer = block.querySelector('div[class*="_48edb25"], div[class*="edb250b1"]');
             if (deepThinkingContainer) {
               const deepThinkingText = deepThinkingContainer.innerText.trim();
               if (deepThinkingText) {
@@ -114,12 +123,12 @@ class DeepSeekScraper extends window.BaseScraper {
               }
             }
             
-            // 常规回复部分
-            const regularResponse = block.querySelector('.ds-markdown--block');
+            // 常规回复部分（同时检查新旧选择器）
+            const regularResponse = block.querySelector('.ds-markdown.ds-markdown--block, .ds-markdown--block');
             if (regularResponse) {
               const regularText = regularResponse.innerText.trim();
               if (regularText) {
-                aiContent += `【回复】${regularText}`;
+                aiContent += regularText;
               }
             }
 
